@@ -1,55 +1,35 @@
 from pymongo import MongoClient
 from datetime import datetime
+from pymongo import MongoClient
 
 """
-All function for handling the DB will be here for ease of use and maintainability.
-For example: adding new hardware, new games, new settings and more.
+All function for handling the games in the DB will be here for ease of use and maintainability.
+For example: adding new game, adding new hardware requirements, and more.
 """
 
 # Assuming MongoDB instance running locally
 client = MongoClient('mongodb://localhost:27017')
-db = client['game_requirements_db']
-
-# TODO add validation (duplications, nulls, empty objects)
-def add_gpu(brand, model, fullname):
-    """
-    Adding a new GPU to the collection.
-    :param brand: brand of the GPU. E.G: Nvidia
-    :param model: GPU model. E.G RTX 4090
-    :param fullname: name of the GPU model. E.G: RTX 4070 TI super
-    """
-    gpu_id = brand.lower() + "_" + model.lower().replace(' ', '_')
-    db.hardware.insert_one(
-        {"hardware_id": gpu_id, "brand": brand, "model": model, "fullname": fullname, "type": "gpu_" + brand.lower()})
-
-# TODO add validation (duplications, nulls, empty objects)
-def add_cpu(brand, model, fullname):
-    """
-    Adding a new CPU to the collection.
-    :param brand: brand of the CPU. E.G: AMD
-    :param model: CPU model without spaces. E.G RYZEN3600
-    :param fullname: full name of the CPU model. E.G RYZEN R5 3600
-    """
-    cpu_id = brand.lower() + "_" + model.lower().replace(' ', '_')
-    db.hardware.insert_one(
-        {"hardware_id": cpu_id, "brand": brand, "model": model, "fullname": fullname, "type": "cpu_" +brand.lower()})
+db = client['game_db']
 
 # Add new game
-def create_game(name, publisher, release_date, image_url, additional_info=None):
+def create_game(name, publisher, release_date, portrait_url, landscape_url, additional_info=None):
     """
     Adds a new game to the database.
     :param name: Name of the game
     :param publisher: Publisher of the game
     :param release_date: Release date of the game
-    :param image_url: URL for the game image
+    :param portrait_url: URL for the portrait image
+    :param landscape_url: URL for the landscape image
     :param additional_info: Any other relevant info (optional)
     """
+    game_id = name.lower().replace(' ', '_') + "_" + str(get_year_from_date(release_date))
     new_game = {
-        "id": name.lower().replace(' ', '_') + "_" + get_year_from_date(release_date),
+        "id": game_id,
         "name": name,
         "publisher": publisher,
         "release_date": release_date,
-        "image_url": image_url,
+        "portrait_url": portrait_url,
+        "landscape_url": landscape_url,
         "requirements": {},  # Initialize the requirements as an empty dictionary
     }
     if additional_info:
@@ -121,3 +101,10 @@ def add_hardware_to_requirement(game_id, setting_name, hardware_type, hardware_i
             print(f"Setting '{setting_name}' not found for game '{game_id}'.")
     else:
         print(f"Game '{game_id}' not found.")
+
+async def get_all_games():
+    """
+    Retrieve all games from the database.
+    :return: List of all games as dictionaries.
+    """
+    return list(db.games.find({}))
