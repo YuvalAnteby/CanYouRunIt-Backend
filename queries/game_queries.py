@@ -1,6 +1,6 @@
-from pymongo import MongoClient
-from datetime import datetime
-from pymongo import MongoClient
+from bson import ObjectId
+from fastapi import HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
 
 """
 All function for handling the games in the DB will be here for ease of use and maintainability.
@@ -8,8 +8,10 @@ For example: adding new game, adding new hardware requirements, and more.
 """
 
 # Assuming MongoDB instance running locally
-client = MongoClient('mongodb://localhost:27017')
+client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client['game_db']
+games_collection = db.get_collection('games')
+
 
 # Add new game
 def create_game(name, publisher, release_date, portrait_url, landscape_url, additional_info=None):
@@ -22,7 +24,7 @@ def create_game(name, publisher, release_date, portrait_url, landscape_url, addi
     :param landscape_url: URL for the landscape image
     :param additional_info: Any other relevant info (optional)
     """
-    game_id = name.lower().replace(' ', '_') + "_" + str(get_year_from_date(release_date))
+    game_id = name.lower().replace(' ', '_') + "_" + str(release_date)
     new_game = {
         "id": game_id,
         "name": name,
@@ -38,20 +40,64 @@ def create_game(name, publisher, release_date, portrait_url, landscape_url, addi
     db.games.insert_one(new_game)
     print(f"Game '{name}' added to the database.")
 
-def get_year_from_date(date_string):
-    """
-    Get the year from a date string.
-    :param date_string: string of a date of the format YYYY-MM-DD
-    :return: year of a date
-    """
-    try:
-        release_date = datetime.strptime(date_string, "%Y-%m-%d")
-        return release_date.year
-    except ValueError:
-        print("Invalid date format. Please use 'YYYY-MM-DD'.")
-        return None
 
-# Add a new requirement setting for a game
+async def get_game(game_id: str):
+    """
+    Gets a game from the database using MongoDB's built-in ids.
+
+    :param game_id: game id made by MongoDB (attribute is called _id)
+    :return: a single game of this id
+    """
+    game_cursor = await games_collection.find_one({"_id": ObjectId(game_id)})
+    if game_cursor is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return game_cursor
+
+
+async def search_game_by_name(name: str):
+    """
+    Performs a search in the MongoDB database for a game by name.
+
+    :param name: string of the game's name. Will be searched by this as regex
+    :return: list of games that match
+    """
+    name_regex = {"$regex": name, "$options": "i"}
+    games_cursor = games_collection.find({"name": name_regex})
+    games = await games_cursor.to_list(length=100)
+    if not games:
+        raise HTTPException(status_code=404, detail="No games found matching the name's regex")
+    return games
+
+
+async def search_game_by_publisher(game_publisher: str):
+    """
+     Performs a search in the MongoDB database for games that have the provided publisher.
+
+    :param game_publisher: string name of the publisher of the games.
+    :return: list of games that match
+    """
+    publisher_regex = {"$regex": game_publisher, "$options": "i"}
+    games_cursor = games_collection.find({"publisher": publisher_regex})
+    games = await games_cursor.to_list(length=100)
+    if not games:
+        raise HTTPException(status_code=404, detail="No games found matching the publisher regex")
+    return games
+
+
+async def search_game_by_release_year(release_year: str):
+    """
+    Performs a search in the MongoDB database for games that have the provided release year.
+    :param release_year: string of the game's release year.
+    :return: list of games that match
+    """
+    games_cursor = games_collection.find({"release_date": release_year})
+    games = await games_cursor.to_list(length=100)
+    if not games:
+        raise HTTPException(status_code=404, detail="No games found matching the year")
+    return games
+
+
+# Add a new requirement setting for a game TODO test
 def add_requirement_to_game(game_id, setting_id, hardware_requirements):
     """
     Add a new setting with required hardware to the game.
@@ -77,7 +123,8 @@ def add_requirement_to_game(game_id, setting_id, hardware_requirements):
     else:
         print(f"Game '{game_id}' not found.")
 
-# Add hardware to an existing requirement setting for a game
+
+# Add hardware to an existing requirement setting for a game TODO test
 def add_hardware_to_requirement(game_id, setting_name, hardware_type, hardware_id):
     """
     Add new hardware to an existing setting in a game
@@ -102,9 +149,18 @@ def add_hardware_to_requirement(game_id, setting_name, hardware_type, hardware_i
     else:
         print(f"Game '{game_id}' not found.")
 
+
 async def get_all_games():
     """
     Retrieve all games from the database.
     :return: List of all games as dictionaries.
     """
-    return list(db.games.find({}))
+    games_cursor = db.games.find({})
+    games = await games_cursor.to_list(length=100)
+    if not games:
+        raise HTTPException(status_code=404, detail="No games in DB")
+    return games
+
+# TODO add update game info
+
+# TODO add advanced search function
