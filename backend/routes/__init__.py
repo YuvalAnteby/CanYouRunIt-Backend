@@ -1,12 +1,13 @@
 """
-Queries module: Contains MongoDB query functions for the DB.
+Routes module: Contains MongoDB query functions for the DB.
 
 Modules:
 - games_queries: Functions for handling game-related database operations.
 - hardware_queries: Functions for handling hardware-related database operations.
 """
-
+from fastapi import APIRouter
 from motor.motor_asyncio import AsyncIOMotorClient
+
 
 # Import specific functions or classes to expose them at the package level
 
@@ -15,3 +16,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 # Connect to MongoDB (this assumes MongoDB is running on localhost)
 client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client["game_db"]  # Use your desired database name
+
+router = APIRouter()
+

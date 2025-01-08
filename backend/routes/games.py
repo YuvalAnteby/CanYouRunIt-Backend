@@ -5,7 +5,9 @@ from bson import ObjectId
 from typing import List, Optional
 
 router = APIRouter()
-
+#####
+# TODO change as needed
+####
 class GameCreate(BaseModel):
     """TODO
     Schema for creating a new game with the relevant attributes
