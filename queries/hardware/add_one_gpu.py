@@ -8,7 +8,6 @@ client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client["game_db"]
 collection = db.hardware
 
-# TODO set as route
 async def add_gpu(brand, model, fullname):
     """
     Adding a new GPU to the collection.
