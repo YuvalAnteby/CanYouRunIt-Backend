@@ -1,3 +1,4 @@
+import asyncio
 import re
 
 from bson import ObjectId
@@ -32,29 +33,6 @@ class Cpu(BaseModel):
         json_encoders = {
             ObjectId: str  # This will convert ObjectId to a string automatically
         }
-
-
-# TODO set as route
-def add_cpu(brand, model, fullname):
-    """
-    Adding a new CPU to the collection.
-    :param brand: brand of the CPU. E.G: AMD
-    :param model: CPU model without spaces. E.G RYZEN3600
-    :param fullname: full name of the CPU model. E.G RYZEN R5 3600
-    """
-    # Make sure the input isn't empty
-    if brand.strip() == "" or model.strip() == "" or fullname.strip() == "":
-        return
-    # Standardize ids for the CPUs
-    cpu_id = brand.lower() + "_" + model.lower().replace(' ', '_')
-    # Check if the CPU already exists to avoid duplicates
-    existing_cpu = db.hardware.find_one({"hardware_id": cpu_id, "type": "cpu"})
-    if existing_cpu:
-        print(f"CPU '{fullname}' already exists in the database.")
-        return
-    # Insert the new CPU to the DB
-    db.hardware.insert_one(
-        {"hardware_id": cpu_id, "brand": brand, "model": model, "fullname": fullname, "type": "cpu_" + brand.lower()})
 
 
 @router.get("/cpus")
@@ -115,3 +93,8 @@ async def get_cpu_by_model(model: str):
     cpus_cursor = collection.find(search_query)
     cpus = await cpus_cursor.to_list()
     return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
+
+#async def main():
+#    await get_cpu_by_brand("AMD")
+
+#asyncio.run(main())
