@@ -8,39 +8,47 @@ collection = db.games
 # TODO test script
 
 # Add new game
-async def create_game(name, publisher, release_date, portrait_url, landscape_url, additional_info=None):
+async def add_one_game(name,
+                       publisher,
+                       release_date,
+                       #genres,
+                       #desc,
+                       #trailer_url,
+                       port_url,
+                       land_url#,
+                       #buy_links
+                       ):
     """
     Adds a new game to the database.
+
     :param name: Name of the game
     :param publisher: Publisher of the game
     :param release_date: Release date of the game
-    :param portrait_url: URL for the portrait image
-    :param landscape_url: URL for the landscape image
-    :param additional_info: Any other relevant info (optional)
+    :param genres: array of strings of genres
+    :param desc: description of the game
+    :param trailer_url: URL of the trailer in YouTube
+    :param port_url: URL for the portrait image
+    :param land_url: URL for the landscape image
+    :param buy_links: array of links of places you can buy the game on
     """
     game_id = name.lower().replace(' ', '_') + "_" + str(release_date)
-    new_game = {
+    await db.games.insert_one({
         "id": game_id,
         "name": name,
         "publisher": publisher,
         "release_date": release_date,
-        "portrait_url": portrait_url,
-        "landscape_url": landscape_url,
+        #"genres": genres,
+        #"desc": desc,
+        #"trailer_url": trailer_url,
+        "portrait_url": port_url,
+        "landscape_url": land_url,
+        #"buy_links": buy_links,
         "requirements": {},  # Initialize the requirements as an empty dictionary
-    }
-    if additional_info:
-        new_game["additional_info"] = additional_info
-
-    await db.games.insert_one(new_game)
+    })
     print(f"Game '{name}' added to the database.")
 
 async def main():
-    await create_game("name",
-                      "publisher",
-                      "release_date",
-                      "portrait_url",
-                      "landscape_url",
-                      "additional_info")
+    await add_one_game()
 
 
 # Run the script
