@@ -3,7 +3,6 @@ from starlette.middleware.cors import CORSMiddleware
 
 from backend.routes.cpus import router as cpus_router
 from backend.routes.gpus import router as gpus_router
-from queries.hardware_queries import router as hardware_queries_router  # , add_gpu
 
 app = FastAPI()
 
@@ -14,7 +13,6 @@ app = FastAPI()
 def read_root():
     return {"message": "Welcome to the Can You Run It Backend!"}
 
-app.include_router(hardware_queries_router, prefix="/api/hardware", tags=["Hardware"])
 app.include_router(cpus_router, prefix="/api/hardware", tags=["CPUs"])
 app.include_router(gpus_router, prefix="/api/hardware", tags=["GPUs"])
 
