@@ -53,7 +53,6 @@ async def get_all_cpus():
         print(f"Error fetching CPUs: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching CPUs: {str(e)}")
 
-# TODO fix route
 @router.get("/cpus/brand")
 async def get_cpu_by_brand(brand: str):
     """
@@ -68,7 +67,6 @@ async def get_cpu_by_brand(brand: str):
     cpus = await cpus_cursor.to_list(length=None)
     return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
 
-# TODO fix route
 @router.get("/cpus/model")
 async def get_cpu_by_model(model: str):
     """
