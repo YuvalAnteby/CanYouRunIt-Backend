@@ -1,60 +1,60 @@
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
-from backend.app.database import mongodb
-from bson import ObjectId
 from typing import List, Optional
 
+from bson import ObjectId
+from fastapi import APIRouter, HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel
+
+from backend.app.database import mongodb
+from queries.game_queries import games_collection
+
+# Connect to MongoDB (this assumes MongoDB is running on localhost)
+client = AsyncIOMotorClient('mongodb://localhost:27017')
+db = client["game_db"]  # Use your desired database name
 router = APIRouter()
+# Use the games collection
+collection = db.games
+
 #####
 # TODO change as needed
 ####
-class GameCreate(BaseModel):
-    """TODO
+class Game(BaseModel):
+    """TODO add the new info to the model
     Schema for creating a new game with the relevant attributes
     """
+    game_id: str
     name: str
     publisher: str
-    release_date: str
+    release_date: int
+    genres: List[str]
+    desc: str
+    trailer_url: str
     portrait_url: str
     landscape_url: str
-    requirements: dict
+    buy_links: List[str]
 
-
-# adds mongoDB's built in id to the GameCreate objects
-class GameResponse(GameCreate):
-    id: str  # MongoDB's ObjectId will be converted to string
+    # Convert ObjectId to string
+    id: str
 
     class Config:
-        # Convert MongoDB ObjectId to string when returning the response
         json_encoders = {
-            ObjectId: str
+            ObjectId: str  # This will convert ObjectId to a string automatically
         }
 
 
-@router.post("/games/", response_model=GameResponse)
-async def create_game(game: GameCreate):
-    """
-    TODO
-    :param game:
-    :return:
-    """
-    games_collection = mongodb.get_collection("games")  # Get the "games" collection
-    new_game = {
-        "name": game.name,
-        "publisher": game.publisher,
-        "release_date": game.release_date,
-        "portrait_url": game.portrait_url,
-        "landscape_url": game.landscape_url,
-        "requirements": game.requirements
-    }
-    # Insert into MongoDB
-    result = await games_collection.insert_one(new_game)
-    # Get the inserted document's ID
-    game_id = result.inserted_id
-    # Return the game data along with its MongoDB ID
-    return {**new_game, "id": str(game_id)}
+@router.get("/games")
+async def get_all_games():
+    try:
+        print("Querying all games from the database...")
+        games_cursor = collection.find()
+        games = await games_cursor.to_list(length=None)
+        print(f"Found games: {games}")  # Print the fetched data
+        return [Game(**game, id=str(game["_id"])) for game in games]
+    except Exception as e:
+        print(f"Error fetching all games: {e}")
+        raise HTTPException(status_code=500, detail=f"Error fetching all games: {str(e)}")
 
-@router.get("/games/search", response_model=List[GameResponse])
+@router.get("/games/search", response_model=List[Game])
 async def search_games(name: Optional[str] = None, year: Optional[str] = None, publisher: Optional[str] = None):
     """
     Performs a search in the MongoDB database for games that match the provided search criteria.
@@ -82,11 +82,11 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
     if not games:
         raise HTTPException(status_code=404, detail="No games found matching the criteria")
 
-    return [GameResponse(**game) for game in games]
+    return [Game(**game) for game in games]
 
 # TODO test
-@router.put("/games/{game_id}", response_model=GameResponse)
-async def update_game(game_id: str, game: GameCreate):
+@router.put("/games/{game_id}", response_model=Game)
+async def update_game(game_id: str, game: Game):
     games_collection = mongodb.get_collection("games")
     updated_game = {
         "name": game.name,
