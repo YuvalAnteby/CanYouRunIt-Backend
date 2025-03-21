@@ -19,7 +19,10 @@ async def add_one_game(name,
                        api_support,
                        trailer_url,
                        port_url,
-                       land_url,
+                       land_s,
+                       land_m,
+                       land_l,
+                       land_xl,
                        buy_links):
     """
     Adds a new game to the database.
@@ -35,7 +38,10 @@ async def add_one_game(name,
     :param api_support: array of APIs supported by the game. (E.G DX12 and Vulkan)
     :param trailer_url: URL of the trailer in YouTube
     :param port_url: URL for the portrait image
-    :param land_url: URL for the landscape image
+    :param land_s: URL for the landscape image (small size for mobile)
+    :param land_m: URL for the landscape image (medium size for tablets)
+    :param land_l: URL for the landscape image (large size for most pcs)
+    :param land_xl: URL for the landscape image (X large size for high-res pcs)
     :param buy_links: array of links of places you can buy the game on
     """
     game_id = name.lower().replace(' ', '_') + "_" + str(release_date)
@@ -52,7 +58,10 @@ async def add_one_game(name,
         "apiSupport": api_support,
         "trailer_url": trailer_url,
         "portrait_url": port_url,
-        "landscape_url": land_url,
+        "landscape_s": land_s,
+        "landscape_m": land_m,
+        "landscape_l": land_l,
+        "landscape_xl": land_xl,
         "buy_links": buy_links,
     })
     print(f"Game '{name}' added to the database.")
@@ -83,7 +92,10 @@ async def main():
 
     portrait = "https://imgur.com/q1aVXnw"
 
-    landscape = "https://imgur.com/DgbCcxa"
+    landscape_s = "https://imgur.com/DgbCcxa"
+    landscape_m = "https://imgur.com/DgbCcxa"
+    landscape_l = "https://imgur.com/DgbCcxa"
+    landscape_xl = "https://imgur.com/DgbCcxa"
 
     buy_links = []
 
@@ -98,7 +110,10 @@ async def main():
                        api_support,
                        trailer,
                        portrait,
-                       landscape,
+                       landscape_s,
+                       landscape_m,
+                       landscape_l,
+                       landscape_xl,
                        buy_links)
 
 
