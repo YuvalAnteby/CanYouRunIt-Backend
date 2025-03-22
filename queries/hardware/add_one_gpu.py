@@ -32,7 +32,7 @@ async def add_gpu(brand, model, fullname):
 
 
 async def main():
-    await add_gpu("Nvidia", "GTX 1660 TI", "GEFORCE GTX 1660 TI")
+    await add_gpu("Nvidia", "RTX 4060TI (16GB)", "GeForce RTX 4060TI (16GB)")
 
 
 # Run the script
