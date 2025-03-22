@@ -6,7 +6,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 
 from backend.app.database import mongodb
-from queries.game_queries import games_collection
 
 # Connect to MongoDB (this assumes MongoDB is running on localhost)
 client = AsyncIOMotorClient('mongodb://localhost:27017')
@@ -25,12 +24,16 @@ class Game(BaseModel):
     game_id: str
     name: str
     publisher: str
+    developer: str
     release_date: int
     genres: List[str]
     desc: str
     trailer_url: str
     portrait_url: str
-    landscape_url: str
+    landscape_s: str
+    landscape_m: str
+    landscape_l: str
+    landscape_xl: str
     buy_links: List[str]
 
     # Convert ObjectId to string
