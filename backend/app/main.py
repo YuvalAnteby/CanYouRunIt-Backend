@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from backend.routes.cpus import router as cpus_router
 from backend.routes.gpus import router as gpus_router
 from backend.routes.games import router as games_router
+from backend.routes.requirements import router as requirements_router
 
 app = FastAPI()
 
@@ -15,6 +16,7 @@ def read_root():
 app.include_router(cpus_router, prefix="/api/hardware", tags=["CPUs"])
 app.include_router(gpus_router, prefix="/api/hardware", tags=["GPUs"])
 app.include_router(games_router, prefix="/api", tags=["Games"])
+app.include_router(requirements_router, prefix="/api/req", tags=["Requirements"])
 
 # Add CORS middleware
 app.add_middleware(
