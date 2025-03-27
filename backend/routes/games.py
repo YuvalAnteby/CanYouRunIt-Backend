@@ -35,6 +35,8 @@ class Game(BaseModel):
     landscape_l: str
     landscape_xl: str
     buy_links: List[str]
+    available_resolutions: List[str]
+    supported_settings: List[str]
 
     # Convert ObjectId to string
     id: str
