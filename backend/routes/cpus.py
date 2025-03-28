@@ -58,7 +58,7 @@ async def get_cpu_by_brand(brand: str):
     """
     Retrieve CPUs with the given brand from the database.
 
-    :param brand: string of brand of the CPU. E.G: AMD and Intel.
+    :param brand: string of brand of the CPU. E.G: AMD and Intel. (Not case-sensitive)
     :return: list of CPUs of the given brand.
     """
     brand_regex = {"$regex": re.compile(brand, re.IGNORECASE)}
@@ -72,8 +72,8 @@ async def get_cpu_by_model(model: str):
     """
     Retrieve CPUs with the given model from the database.
 
-    :param model: string of CPU model. E.G: RYZEN3600
-    :return:
+    :param model: string of CPU model. E.G: RYZEN3600. (Not case-sensitive)
+    :return: list of CPUs of the given model's regex.
     """
     model_regex = {"$regex": re.compile(model, re.IGNORECASE)}
     cpu_regex = {"$regex": re.compile("cpu", re.IGNORECASE)}
@@ -91,8 +91,3 @@ async def get_cpu_by_model(model: str):
     cpus_cursor = collection.find(search_query)
     cpus = await cpus_cursor.to_list()
     return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
-
-#async def main():
-#    await get_cpu_by_brand("AMD")
-
-#asyncio.run(main())
