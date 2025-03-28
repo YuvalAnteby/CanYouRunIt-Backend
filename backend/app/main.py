@@ -11,6 +11,11 @@ app = FastAPI()
 # Include routers
 @app.get("/")
 def read_root():
+    """
+    Welcome message to the root path.
+
+    :return:
+    """
     return {"message": "Welcome to the Can You Run It Backend!"}
 
 app.include_router(cpus_router, prefix="/api/hardware", tags=["CPUs"])
