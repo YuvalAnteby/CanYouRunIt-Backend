@@ -6,7 +6,6 @@ from fastapi import FastAPI, Query, APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 
-
 """
 All function for handling the GPUs in the DB will be here for ease of use and maintainability.
 For example: adding new hardware, fetching hardware, and more.
@@ -34,10 +33,12 @@ class Gpu(BaseModel):
             ObjectId: str  # This will convert ObjectId to a string automatically
         }
 
+
 @router.get("/gpus")
 async def get_all_gpus():
     """
     Retrieve all GPUs from the database.
+
     :return: List of all GPUs as dictionaries.
     """
     gpu_regex = {"$regex": re.compile("gpu", re.IGNORECASE)}
@@ -57,7 +58,7 @@ async def get_gpu_by_brand(brand: str):
     """
     Retrieve GPUs with the given brand from the database.
 
-    :param brand: string of brand of the GPU. E.G: Nvidia.
+    :param brand: string of brand of the GPU. E.G: Nvidia. (Not case-sensitive)
     :return: list of GPUs of the given brand.
     """
     brand_regex = {"$regex": re.compile(brand, re.IGNORECASE)}
@@ -71,7 +72,8 @@ async def get_gpu_by_brand(brand: str):
 async def get_gpu_by_model(model: str):
     """
     Performs a search in the MongoDB collection for GPUs using regex of the model.
-    :param model: string of GPU model, E.G: RTX4090
+
+    :param model: string of GPU model, E.G: RTX4090 (Not case-sensitive)
     :return: list of GPUS with matching fullname or model
     """
     model_regex = {"$regex": re.compile(model, re.IGNORECASE)}
@@ -90,8 +92,3 @@ async def get_gpu_by_model(model: str):
     gpus_cursor = collection.find(search_query)
     gpus = await gpus_cursor.to_list()
     return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
-
-#async def main():
-#    await get_gpu_by_brand("Nvidia")
-
-#asyncio.run(main())
