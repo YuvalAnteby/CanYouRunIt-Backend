@@ -42,6 +42,19 @@ async def get_requirement(
         resolution: str,
         setting_name: str,
         fps: Optional[int] = None):
+    """
+    Gets the setup's performance result from the DB.
+
+    :param game_id: game's id made by MongoDB as a string.
+    :param cpu_id: CPU's id made by MongoDB as a string.
+    :param gpu_id: GPU's id made by MongoDB as a string.
+    :param ram: RAM amount in GB (int).
+    :param resolution: full resolution string. E.G: 1920x1080
+    :param setting_name: setting name as specified per game. E.G Ultra
+    :param fps: minimum FPS the setup should reach (optional & int)
+    :return: a dictionary of the setup's performance in the game with provided filtering.
+    Consists of basic information of combination provided & FPS & notes & source
+    """
     # Construct the filter for setups
     setup_filter = {
         "cpu_id": cpu_id,
@@ -59,12 +72,11 @@ async def get_requirement(
             # "setups": {"$elemMatch": setup_filter}  # Filter within setups
             #"setups": setup_filter  # Filter within setups
         })
-        result = []
-        print("GameDoc: ", game_doc)
+        #print("GameDoc: ", game_doc)
         # Extract matching setups
         for setup in game_doc["setups"]:
             if setup["cpu_id"] == cpu_id and setup["gpu_id"] == gpu_id and setup["ram"] <= ram:
-                print(setup)
+                #print(setup)
                     #and (fps is None or setup["fps"] <= fps):
                 return (GameSetupRequest(game_id=game_id,
                                                cpu_id=setup["cpu_id"],
@@ -84,6 +96,13 @@ async def get_requirement(
 
 @router.get("/game-requirements/all", response_model=List[Dict[str, Any]])
 async def get_all_game_requirements():
+    """
+    TODO remove on release - FOR DEBUGGING ONLY
+    Gets all requirements from the DB.
+
+    :return: list of dictionaries of all games and setups performances as recorded in the DB.
+    Consists of basic information of combination provided & FPS & notes & source
+    """
     try:
         cursor = collection.find()
         documents = await cursor.to_list(length=None)
