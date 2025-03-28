@@ -8,8 +8,10 @@
 </p>
 
 **Can You Run It** is a backend service built with **FastAPI** that powers a performance compatibility checker for PC
-games. <br />It helps users determine whether their system can run specific games based on their hardware — CPU, GPU, and
-RAM — and desired settings. <br />This repository contains the backend API, database models, and core logic to support the
+games. <br />It helps users determine whether their system can run specific games based on their hardware — CPU, GPU,
+and
+RAM — and desired settings. <br />This repository contains the backend API, database models, and core logic to support
+the
 frontend interface.
 
 ---
@@ -128,14 +130,23 @@ docker-compose up --build
 FastAPI will be available at [`http://localhost:8000`](http://localhost:8000)<br />
 and the interactive docs at [`http://localhost:8000/docs`](http://localhost:8000/docs)
 
+---
+
 ## 🤝 Contributing
 
 Interested in helping out or using the backend for your own projects? Feel free to open an issue or contact me directly!
 
+---
+
 ## 📄 License
 
-This project is licensed under the Mozilla Public License Version 2.0. See the LICENSE file for details.
+This project is licensed under the Mozilla Public License Version 2.0.<br />
+See the [LICENSE](https://github.com/YuvalAnteby/CanYouRunIt-Backend/blob/main/LICENSE) file for details.
+
+---
 
 ## 🔗 Related Projects
 
 - [Frontend Repo (React)](https://github.com/YuvalAnteby/can-you-run-it-frontend)
+
+---
