@@ -49,17 +49,20 @@ class Game(BaseModel):
 
 @router.get("/games")
 async def get_all_games():
+    """
+    Retrieve all CPUs from the database.
+
+    :return: List of all games as dictionaries.
+    """
     try:
-        print("Querying all games from the database...")
         games_cursor = collection.find()
         games = await games_cursor.to_list(length=None)
-        print(f"Found games: {games}")  # Print the fetched data
         return [Game(**game, id=str(game["_id"])) for game in games]
     except Exception as e:
-        print(f"Error fetching all games: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching all games: {str(e)}")
 
-@router.get("/games/search", response_model=List[Game])
+#TODO needs more work and testing
+#@router.get("/games/search", response_model=List[Game])
 async def search_games(name: Optional[str] = None, year: Optional[str] = None, publisher: Optional[str] = None):
     """
     Performs a search in the MongoDB database for games that match the provided search criteria.
@@ -67,7 +70,7 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
     The search is flexible and can handle partial matches for the game name and publisher.
 
     :param name: (str, optional): The name of the game to search for (case-insensitive).
-    :param year: (str, optional): The release year of the game.
+    :param year: (str, optional): The release year of the game. TODO change to int
     :param publisher: (str, optional): The publisher of the game.
     :return: List[GameResponse]: A list of games that match the search criteria.
 
@@ -89,6 +92,7 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
 
     return [Game(**game) for game in games]
 
+# TODO move to scripts
 #@router.put("/games/{game_id}", response_model=Game)
 async def update_game(game_id: str, game: Game):
     games_collection = mongodb.get_collection("games")
