@@ -120,8 +120,8 @@ async def get_gpu_by_brand(brand: str)
 #### With Docker
 
 ```bash
-git clone https://github.com/your-username/cyri-backend.git
-cd cyri-backend
+git clone https://github.com/YuvalAnteby/CanYouRunIt-Backend.git
+cd CanYouRunIt-Backend
 docker-compose up --build
 ```
 
