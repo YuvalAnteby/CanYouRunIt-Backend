@@ -1,9 +1,9 @@
 """
-Queries module: Contains MongoDB query functions for the DB.
+Scripts module: Contains MongoDB query functions for the DB.
 
 Modules:
-- games_queries: Functions for handling game-related database operations.
-- hardware_queries: Functions for handling hardware-related database operations.
+- games: each file for handling game-related database operations.
+- hardware: each file for handling hardware-related database operations.
 """
 
 from motor.motor_asyncio import AsyncIOMotorClient

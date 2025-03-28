@@ -89,8 +89,7 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
 
     return [Game(**game) for game in games]
 
-# TODO test
-@router.put("/games/{game_id}", response_model=Game)
+#@router.put("/games/{game_id}", response_model=Game)
 async def update_game(game_id: str, game: Game):
     games_collection = mongodb.get_collection("games")
     updated_game = {

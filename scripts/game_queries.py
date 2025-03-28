@@ -96,43 +96,5 @@ def add_requirement_to_game(game_id, setting_id, hardware_requirements):
         print(f"Game '{game_id}' not found.")
 
 
-# Add hardware to an existing requirement setting for a game TODO test
-def add_hardware_to_requirement(game_id, setting_name, hardware_type, hardware_id):
-    """
-    Add new hardware to an existing setting in a game
-    E.G:
-        add_hardware_to_requirement("God of War", "4k_high_60fps", "gpu_nvidia", "nvidia_rtx_3090")
-    :param game_id: id of the required game. E.G: RTX 4090
-    :param setting_name: name of the required setting. E.G: 1080p_high_60fps
-    :param hardware_type: type of the hardware. E.G: gpu_nvidia
-    :param hardware_id: id of the hardware. E.G: nvidia_rtx_3080
-    :return:
-    """
-    game = db.games.find_one({"id": game_id})
-    if game:
-        if setting_name in game["requirements"]:
-            db.games.update_one(
-                {"id": game_id},
-                {"$push": {f"requirements.{setting_name}.{hardware_type}": hardware_id}}
-            )
-            print(f"Added hardware '{hardware_id}' to setting '{setting_name}' for game '{game_id}'.")
-        else:
-            print(f"Setting '{setting_name}' not found for game '{game_id}'.")
-    else:
-        print(f"Game '{game_id}' not found.")
-
-
-async def get_all_games():
-    """
-    Retrieve all games from the database.
-    :return: List of all games as dictionaries.
-    """
-    games_cursor = db.games.find({})
-    games = await games_cursor.to_list(length=100)
-    if not games:
-        raise HTTPException(status_code=404, detail="No games in DB")
-    return games
-
-# TODO add update game info
 
 # TODO add advanced search function
