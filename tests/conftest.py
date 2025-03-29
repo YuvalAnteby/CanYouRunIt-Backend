@@ -33,7 +33,7 @@ async def async_client(test_app: FastAPI):
 def fake_game():
     """
     Returns a dictionary that looks like a real game from the DB.
-    Reuse in your game-related tests.
+    Reused in game and requirements related tests.
     """
     return {
         "game_id": "g1",
