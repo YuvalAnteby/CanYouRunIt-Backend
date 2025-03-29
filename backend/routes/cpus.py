@@ -20,6 +20,7 @@ collection = db.hardware
 
 
 class Cpu(BaseModel):
+    hardware_id: str
     brand: str
     model: str
     fullname: str

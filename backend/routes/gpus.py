@@ -19,6 +19,7 @@ collection = db.hardware
 
 
 class Gpu(BaseModel):
+    hardware_id: str
     brand: str
     model: str
     fullname: str
