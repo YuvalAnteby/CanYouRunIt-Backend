@@ -24,6 +24,9 @@ class GameSetupRequest(BaseModel):
     resolution: str
     setting_name: str
     fps: Optional[int] = None
+    taken_by: str
+    notes: str
+    verified: bool
     # Convert ObjectId to string
     id: str
 
@@ -31,6 +34,7 @@ class GameSetupRequest(BaseModel):
         json_encoders = {
             ObjectId: str  # This will convert ObjectId to a string automatically
         }
+
 
 # TODO add the rest of the variables from setup element of the DB
 @router.get("/game-requirements/", response_model=Dict[str, Any])
@@ -70,28 +74,32 @@ async def get_requirement(
             "resolution": resolution,
             "setting_name": setting_name,
             # "setups": {"$elemMatch": setup_filter}  # Filter within setups
-            #"setups": setup_filter  # Filter within setups
+            # "setups": setup_filter  # Filter within setups
         })
-        #print("GameDoc: ", game_doc)
+        if game_doc is None:
+            raise HTTPException(status_code=404, detail="Combination not found")
+        # print("GameDoc: ", game_doc)
         # Extract matching setups
         for setup in game_doc["setups"]:
-            if setup["cpu_id"] == cpu_id and setup["gpu_id"] == gpu_id and setup["ram"] <= ram:
-                #print(setup)
-                    #and (fps is None or setup["fps"] <= fps):
+            if (setup["cpu_id"] == cpu_id and setup["gpu_id"] == gpu_id and setup["ram"] <= ram
+                    and (fps is None or setup["fps"] <= fps)):
                 return (GameSetupRequest(game_id=game_id,
-                                               cpu_id=setup["cpu_id"],
-                                               gpu_id=setup["gpu_id"],
-                                               ram=setup["ram"],
-                                               resolution=game_doc["resolution"],
-                                               setting_name=game_doc["setting_name"],
-                                               fps=setup.get("fps"),
-                                               id=str(game_doc["_id"])
-                                               ).model_dump())
-
+                                         cpu_id=setup["cpu_id"],
+                                         gpu_id=setup["gpu_id"],
+                                         ram=setup["ram"],
+                                         resolution=game_doc["resolution"],
+                                         setting_name=game_doc["setting_name"],
+                                         fps=setup.get("fps"),
+                                         taken_by=setup.get("taken_by"),
+                                         notes=setup.get("notes"),
+                                         verified=setup.get("verified"),
+                                         id=str(game_doc["_id"])
+                                         ).model_dump())
+    except HTTPException as http_exception:
+        raise http_exception
     except Exception as e:
         print(f"Error fetching documents: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching documents: {str(e)}")
-
 
 
 @router.get("/game-requirements/all", response_model=List[Dict[str, Any]])
