@@ -59,7 +59,7 @@ def fake_game():
     }
 
 @pytest.fixture
-def fake_hardware():
+def fake_hardware_list():
     """
     Returns a list of dictionaries that looks like hardware from the DB.
     Reused in CPU and GPU related tests.
