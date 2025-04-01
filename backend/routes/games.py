@@ -58,6 +58,7 @@ async def get_all_games():
     try:
         games_cursor = collection.find()
         games = await games_cursor.to_list(length=None)
+        # If games is empty count it as no games found error
         if not games:
             raise HTTPException(status_code=404, detail="No games found")
         return [Game(**game, id=str(game["_id"])) for game in games]
