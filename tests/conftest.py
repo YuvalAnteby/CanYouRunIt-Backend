@@ -1,7 +1,9 @@
 import pytest
 from fastapi import FastAPI
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from unittest.mock import AsyncMock, patch
+from bson import ObjectId
+
 
 from backend.routes.requirements import router as requirements_router
 from backend.routes.games import router as games_router
@@ -26,7 +28,8 @@ async def async_client(test_app: FastAPI):
         async def test_something(async_client):
             response = await async_client.get("/games")
     """
-    async with AsyncClient(app=test_app, base_url="http://test") as client:
+    transport = ASGITransport(app=test_app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
 @pytest.fixture
@@ -36,21 +39,22 @@ def fake_game():
     Reused in game and requirements related tests.
     """
     return {
+        "_id": ObjectId("507f1f77bcf86cd799439011"),
         "game_id": "g1",
-        "name": "Test Game",
-        "publisher": "Test Publisher",
-        "developer": "Test Dev",
+        "name": "Test Game1",
+        "publisher": "Test Publisher1",
+        "developer": "Test Dev1",
         "release_date": 2024,
         "genres": ["Action"],
-        "desc": "Just a test.",
-        "trailer_url": "https://example.com/trailer",
-        "portrait_url": "https://example.com/portrait",
+        "desc": "Just a test1.",
+        "trailer_url": "https://example.com/trailer1",
+        "portrait_url": "https://example.com/portrait1",
         "landscape_s": "...",
         "landscape_m": "...",
         "landscape_l": "...",
         "landscape_xl": "...",
-        "buy_links": ["https://store.com"],
+        "buy_links": ["https://store1.com"],
         "available_resolutions": ["1920x1080"],
         "supported_settings": ["High", "Ultra"],
-        "id": "some-mongo-id"
     }
+
