@@ -58,3 +58,74 @@ def fake_game():
         "supported_settings": ["High", "Ultra"],
     }
 
+@pytest.fixture
+def fake_hardware():
+    """
+    Returns a list of dictionaries that looks like hardware from the DB.
+    Reused in CPU and GPU related tests.
+    """
+    return [
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884201"),
+            "brand": "brand1",
+            "model": "RYZEN 1234",
+            "fullname": "Ryzen 0 1234",
+            "type": "cpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884202"),
+            "brand": "brand1",
+            "model": "RYZEN 5678",
+            "fullname": "Ryzen 8 5678",
+            "type": "cpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884203"),
+            "brand": "brand2",
+            "model": "I11 1234k",
+            "fullname": "Core I11 1234k",
+            "type": "cpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884204"),
+            "brand": "brand2",
+            "model": "I11 5678k",
+            "fullname": "Core I11 5678k",
+            "type": "cpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884205"),
+            "brand": "brand3",
+            "model": "RI 22 987",
+            "fullname": "brand3 RI 22 987",
+            "type": "cpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884206"),
+            "brand": "brand4",
+            "model": "RTXC 1234",
+            "fullname": "RTXC 1234 (6GB)",
+            "type": "gpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884207"),
+            "brand": "brand4",
+            "model": "RTXC 1234",
+            "fullname": "RTXC 1234 (12GB)",
+            "type": "gpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884208"),
+            "brand": "brand5",
+            "model": "RX 5800",
+            "fullname": "RTX 5800",
+            "type": "gpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884209"),
+            "brand": "brand5",
+            "model": "RX 5800XT",
+            "fullname": "RTX 5800XT",
+            "type": "gpu"
+        }
+    ]
