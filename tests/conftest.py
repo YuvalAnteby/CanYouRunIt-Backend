@@ -59,9 +59,9 @@ def fake_game():
     }
 
 @pytest.fixture
-def fake_hardware_list():
+def fake_cpus_list():
     """
-    Returns a list of dictionaries that looks like hardware from the DB.
+    Returns a list of dictionaries that looks like CPUs from the DB.
     Reused in CPU and GPU related tests.
     """
     return [
@@ -99,7 +99,16 @@ def fake_hardware_list():
             "model": "RI 22 987",
             "fullname": "brand3 RI 22 987",
             "type": "cpu"
-        },
+        }
+    ]
+
+@pytest.fixture
+def fake_gpus_list():
+    """
+    Returns a list of dictionaries that looks like CPUs from the DB.
+    Reused in CPU and GPU related tests.
+    """
+    return [
         {
             "_id": ObjectId("6758bbf1849fa5acb6884206"),
             "brand": "brand4",
@@ -129,3 +138,11 @@ def fake_hardware_list():
             "type": "gpu"
         }
     ]
+
+@pytest.fixture
+def fake_hardware_list(fake_cpus_list, fake_gpus_list):
+    """
+    Returns a list of dictionaries that looks like a mix of CPUs and GPUs from the DB.
+    Reused in CPU and GPU related tests.
+    """
+    return fake_cpus_list + fake_gpus_list
