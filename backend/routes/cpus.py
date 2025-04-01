@@ -6,7 +6,6 @@ from fastapi import FastAPI, Query, APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 
-
 """
 All function for handling the CPUs in the DB will be here for ease of use and maintainability.
 For example: adding new hardware, fetching hardware, and more.
@@ -43,14 +42,18 @@ async def get_all_cpus():
     """
     cpu_regex = {"$regex": re.compile("cpu", re.IGNORECASE)}
     try:
-        print("Querying all CPUs from the database...")
         cpus_cursor = collection.find({"type": cpu_regex})
         cpus = await cpus_cursor.to_list(length=None)
-        print(f"Found CPUs: {cpus}")  # Print the fetched data
+        # If cpus is empty count it as no games found error
+        if not cpus:
+            raise HTTPException(status_code=404, detail="No CPUs found")
         return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="No CPUs found")
     except Exception as e:
         print(f"Error fetching CPUs: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching CPUs: {str(e)}")
+
 
 @router.get("/cpus/brand")
 async def get_cpu_by_brand(brand: str):
@@ -60,11 +63,20 @@ async def get_cpu_by_brand(brand: str):
     :param brand: string of brand of the CPU. E.G: AMD and Intel. (Not case-sensitive)
     :return: list of CPUs of the given brand.
     """
-    brand_regex = {"$regex": re.compile(brand, re.IGNORECASE)}
-    cpu_regex = {"$regex": re.compile("cpu", re.IGNORECASE)}
-    cpus_cursor = collection.find({"brand": brand_regex, "type": cpu_regex})
-    cpus = await cpus_cursor.to_list(length=None)
-    return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
+    try:
+        brand_regex = {"$regex": re.compile(brand, re.IGNORECASE)}
+        cpu_regex = {"$regex": re.compile("cpu", re.IGNORECASE)}
+        cpus_cursor = collection.find({"brand": brand_regex, "type": cpu_regex})
+        cpus = await cpus_cursor.to_list(length=None)
+        # If cpus is empty count it as no games found error
+        if not cpus:
+            raise HTTPException(status_code=404, detail="No CPUs found")
+        return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="No CPUs found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching CPUs by model: {str(e)}")
+
 
 @router.get("/cpus/model")
 async def get_cpu_by_model(model: str):
@@ -87,6 +99,14 @@ async def get_cpu_by_model(model: str):
             }
         ]
     }
-    cpus_cursor = collection.find(search_query)
-    cpus = await cpus_cursor.to_list()
-    return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
+    try:
+        cpus_cursor = collection.find(search_query)
+        cpus = await cpus_cursor.to_list()
+        # If cpus is empty count it as no games found error
+        if not cpus:
+            raise HTTPException(status_code=404, detail="No CPUs found")
+        return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="No CPUs found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching CPUs by model: {str(e)}")
