@@ -14,6 +14,7 @@ router = APIRouter()
 # Use the games collection
 collection = db.games
 
+
 #####
 # TODO change as needed
 ####
@@ -57,12 +58,19 @@ async def get_all_games():
     try:
         games_cursor = collection.find()
         games = await games_cursor.to_list(length=None)
+        if not games:
+            raise HTTPException(status_code=404, detail="No games found")
         return [Game(**game, id=str(game["_id"])) for game in games]
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="No games found")
     except Exception as e:
+        print("EXCEPTION:", e)  # 👈 TEMP DEBUG
         raise HTTPException(status_code=500, detail=f"Error fetching all games: {str(e)}")
 
-#TODO needs more work and testing
-#@router.get("/games/search", response_model=List[Game])
+
+# TODO needs more work
+# TODO create tests
+# @router.get("/games/search", response_model=List[Game])
 async def search_games(name: Optional[str] = None, year: Optional[str] = None, publisher: Optional[str] = None):
     """
     Performs a search in the MongoDB database for games that match the provided search criteria.
@@ -92,8 +100,9 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
 
     return [Game(**game) for game in games]
 
+
 # TODO move to scripts
-#@router.put("/games/{game_id}", response_model=Game)
+# @router.put("/games/{game_id}", response_model=Game)
 async def update_game(game_id: str, game: Game):
     games_collection = mongodb.get_collection("games")
     updated_game = {
