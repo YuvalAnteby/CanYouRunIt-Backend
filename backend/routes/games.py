@@ -65,7 +65,6 @@ async def get_all_games():
     except HTTPException:
         raise HTTPException(status_code=404, detail="No games found")
     except Exception as e:
-        print("EXCEPTION:", e)  # 👈 TEMP DEBUG
         raise HTTPException(status_code=500, detail=f"Error fetching all games: {str(e)}")
 
 
