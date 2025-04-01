@@ -44,12 +44,10 @@ async def get_all_cpus():
     try:
         cpus_cursor = collection.find({"type": cpu_regex})
         cpus = await cpus_cursor.to_list(length=None)
-        # If cpus is empty count it as no games found error
-        if not cpus:
-            raise HTTPException(status_code=404, detail="No CPUs found")
+        validate_cpus_list(cpus)
         return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
-    except HTTPException:
-        raise HTTPException(status_code=404, detail="No CPUs found")
+    except HTTPException as http_exception:
+        raise http_exception
     except Exception as e:
         print(f"Error fetching CPUs: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching CPUs: {str(e)}")
@@ -68,9 +66,7 @@ async def get_cpu_by_brand(brand: str):
         cpu_regex = {"$regex": re.compile("cpu", re.IGNORECASE)}
         cpus_cursor = collection.find({"brand": brand_regex, "type": cpu_regex})
         cpus = await cpus_cursor.to_list(length=None)
-        # If cpus is empty count it as no games found error
-        if not cpus:
-            raise HTTPException(status_code=404, detail="No CPUs found")
+        validate_cpus_list(cpus)
         return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
     except HTTPException:
         raise HTTPException(status_code=404, detail="No CPUs found")
@@ -103,10 +99,27 @@ async def get_cpu_by_model(model: str):
         cpus_cursor = collection.find(search_query)
         cpus = await cpus_cursor.to_list()
         # If cpus is empty count it as no games found error
-        if not cpus:
-            raise HTTPException(status_code=404, detail="No CPUs found")
+        validate_cpus_list(cpus)
         return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
     except HTTPException:
         raise HTTPException(status_code=404, detail="No CPUs found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching CPUs by model: {str(e)}")
+
+
+def validate_cpus_list(cpus: list):
+    """
+    Validates the list of CPUs fetched from the database.
+
+    - Raises 404 if the list is empty.
+    - Raises 500 if any non-CPU item is included in the list.
+
+    :param cpus: List of CPU dictionaries from the DB.
+    """
+    # If cpus is empty count it as no games found error
+    if not cpus:
+        raise HTTPException(status_code=404, detail="No CPUs found")
+    # Ensure only CPUs have been fetched from DB
+    for cpu in cpus:
+        if cpu.get("type", "").lower() != "cpu":
+            raise HTTPException(status_code=500, detail="Non-CPU hardware found in CPU route")
