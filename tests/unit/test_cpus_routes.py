@@ -64,3 +64,14 @@ async def test_get_cpu_by_model_returns_404_when_no_model_exist(async_client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "No CPUs found"
+
+@pytest.mark.asyncio
+async def test_get_cpu_by_brand_wrong_brand(async_client, fake_cpus_list):
+    mock_cursor = AsyncMock()
+    mock_cursor.to_list = AsyncMock(return_value=fake_cpus_list)
+    with patch("backend.routes.cpus.collection.find", return_value=mock_cursor):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            response = await ac.get("/cpus/brand?brand=brand1")
+        assert response.status_code == 500
+        assert response.json()["detail"] == "Wrong brand found in CPUs fetched"
