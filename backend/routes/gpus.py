@@ -1,10 +1,11 @@
-import asyncio
 import re
 
 from bson import ObjectId
-from fastapi import FastAPI, Query, APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
+
+from backend.utils.validation import validate_hardware_list
 
 """
 All function for handling the GPUs in the DB will be here for ease of use and maintainability.
@@ -23,7 +24,6 @@ class Gpu(BaseModel):
     model: str
     fullname: str
     type: str
-
     # Convert ObjectId to string
     id: str
 
@@ -42,14 +42,14 @@ async def get_all_gpus():
     """
     gpu_regex = {"$regex": re.compile("gpu", re.IGNORECASE)}
     try:
-        print("Querying all GPUs from the database...")
         gpus_cursor = collection.find({"type": gpu_regex})
         gpus = await gpus_cursor.to_list(length=None)
-        print(f"Found GPUs: {gpus}")  # Print the fetched data
+        validate_hardware_list(gpus, "gpu")
         return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
+    except HTTPException as http_exception:
+        raise http_exception
     except Exception as e:
-        print(f"Error fetching GPUs: {e}")
-        raise HTTPException(status_code=500, detail=f"Error fetching GPUs: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching gpus by model: {str(e)}")
 
 
 @router.get("/gpus/brand")
@@ -62,9 +62,15 @@ async def get_gpu_by_brand(brand: str):
     """
     brand_regex = {"$regex": re.compile(brand, re.IGNORECASE)}
     gpu_regex = {"$regex": re.compile("gpu", re.IGNORECASE)}
-    gpus_cursor = collection.find({"brand": brand_regex, "type": gpu_regex})
-    gpus = await gpus_cursor.to_list(length=None)
-    return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
+    try:
+        gpus_cursor = collection.find({"brand": brand_regex, "type": gpu_regex})
+        gpus = await gpus_cursor.to_list(length=None)
+        validate_hardware_list(gpus, "gpu", brand=brand)
+        return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
+    except HTTPException as http_exception:
+        raise http_exception
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching gpus by model: {str(e)}")
 
 
 @router.get("/gpus/model")
@@ -88,6 +94,12 @@ async def get_gpu_by_model(model: str):
             }
         ]
     }
-    gpus_cursor = collection.find(search_query)
-    gpus = await gpus_cursor.to_list()
-    return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
+    try:
+        gpus_cursor = collection.find(search_query)
+        gpus = await gpus_cursor.to_list()
+        validate_hardware_list(gpus, "gpu", model=model)
+        return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
+    except HTTPException as http_exception:
+        raise http_exception
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching gpus by model: {str(e)}")

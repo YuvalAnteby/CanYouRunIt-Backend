@@ -1,11 +1,11 @@
-import asyncio
 import re
-from typing import Optional
 
 from bson import ObjectId
-from fastapi import FastAPI, Query, APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
+
+from backend.utils.validation import validate_hardware_list
 
 """
 All functions for handling the CPUs in the DB will be here for ease of use and maintainability.
@@ -44,7 +44,7 @@ async def get_all_cpus():
     try:
         cpus_cursor = collection.find({"type": cpu_regex})
         cpus = await cpus_cursor.to_list(length=None)
-        validate_cpus_list(cpus)
+        validate_hardware_list(cpus, "cpu")
         return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
     except HTTPException as http_exception:
         raise http_exception
@@ -66,12 +66,12 @@ async def get_cpu_by_brand(brand: str):
         cpu_regex = {"$regex": re.compile("cpu", re.IGNORECASE)}
         cpus_cursor = collection.find({"brand": brand_regex, "type": cpu_regex})
         cpus = await cpus_cursor.to_list(length=None)
-        validate_cpus_list(cpus, brand=brand)
+        validate_hardware_list(cpus, "cpu", brand=brand)
         return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
     except HTTPException as http_exception:
         raise http_exception
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching CPUs by model: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching cpus by model: {str(e)}")
 
 
 @router.get("/cpus/model")
@@ -99,41 +99,9 @@ async def get_cpu_by_model(model: str):
         cpus_cursor = collection.find(search_query)
         cpus = await cpus_cursor.to_list()
         # If cpus is empty count it as no games found error
-        validate_cpus_list(cpus, model=model)
+        validate_hardware_list(cpus, "cpu", model=model)
         return [Cpu(**cpu, id=str(cpu["_id"])) for cpu in cpus]
     except HTTPException as http_exception:
         raise http_exception
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching CPUs by model: {str(e)}")
-
-
-def validate_cpus_list(cpus: list, brand: Optional[str] = None, model: Optional[str] = None):
-    """
-    Validates the list of CPUs fetched from the database.
-
-    - Raises 404 if the list is empty.
-    - Raises 500 if any item is included in the list that wasn't supposed to according to filtering. (e.g. brand/ type)
-
-    :param cpus: List of CPU dictionaries from the DB.
-    :param brand: Optional brand filter to validate against.
-    :param model: Optional model regex to validate against.
-    """
-    # If cpus is empty count it as no games found error
-    if not cpus:
-        raise HTTPException(status_code=404, detail="No CPUs found")
-    # Ensure only relevant CPUs have been fetched from DB
-    model_pattern = re.compile(model, re.IGNORECASE) if model else None
-    for cpu in cpus:
-        # Check no GPUs were fetched
-        if cpu.get("type", "").lower() != "cpu":
-            raise HTTPException(status_code=500, detail="Non-CPU hardware found in CPU route")
-        # Ensure only relevant brand's CPUs have been fetched
-        if brand and cpu.get("brand", "").lower() != brand.lower():
-            raise HTTPException(status_code=500, detail="Wrong brand found in CPUs fetched")
-        # Ensure only relevant CPU models have been fetched
-        if model_pattern:
-            if not (
-                    model_pattern.search(cpu.get("model", "")) or
-                    model_pattern.search(cpu.get("fullname", ""))
-            ):
-                raise HTTPException(status_code=500, detail="Wrong model regex found in CPUs fetched")
+        raise HTTPException(status_code=500, detail=f"Error fetching cpus by model: {str(e)}")
