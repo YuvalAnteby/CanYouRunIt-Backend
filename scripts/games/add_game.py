@@ -5,7 +5,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client["game_db"]
 collection = db.games
-#TODO add OS supported
+#TODO add OS_support
+#TODO add added_date
 
 # Add new game
 async def add_one_game(name,

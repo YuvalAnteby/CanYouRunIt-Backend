@@ -15,11 +15,8 @@ router = APIRouter()
 collection = db.games
 
 
-#####
-# TODO change as needed
-####
 class Game(BaseModel):
-    """TODO add the new info to the model
+    """
     Schema for creating a new game with the relevant attributes
     """
     game_id: str
@@ -31,14 +28,16 @@ class Game(BaseModel):
     desc: str
     trailer_url: str
     portrait_url: str
+    buy_links: List[str]
     landscape_s: str
     landscape_m: str
     landscape_l: str
     landscape_xl: str
-    buy_links: List[str]
     available_resolutions: List[str]
     supported_settings: List[str]
-
+    is_ssd_recommended: bool
+    upscale_support: List[str]
+    api_support: List[str]
     # Convert ObjectId to string
     id: str
 
@@ -99,20 +98,3 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
         raise HTTPException(status_code=404, detail="No games found matching the criteria")
 
     return [Game(**game) for game in games]
-
-
-# TODO move to scripts
-# @router.put("/games/{game_id}", response_model=Game)
-async def update_game(game_id: str, game: Game):
-    games_collection = mongodb.get_collection("games")
-    updated_game = {
-        "name": game.name,
-        "release_date": game.release_date,
-        "requirements": game.requirements
-    }
-    result = await games_collection.update_one(
-        {"_id": ObjectId(game_id)}, {"$set": updated_game}
-    )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Game not found")
-    return {**updated_game, "id": game_id}
