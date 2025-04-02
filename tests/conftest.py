@@ -4,9 +4,9 @@ from httpx import AsyncClient, ASGITransport
 from unittest.mock import AsyncMock, patch
 from bson import ObjectId
 
-
 from backend.routes.requirements import router as requirements_router
 from backend.routes.games import router as games_router
+
 
 @pytest.fixture
 def test_app():
@@ -18,6 +18,7 @@ def test_app():
     app.include_router(requirements_router)
     app.include_router(games_router)
     return app
+
 
 @pytest.fixture
 async def async_client(test_app: FastAPI):
@@ -31,6 +32,7 @@ async def async_client(test_app: FastAPI):
     transport = ASGITransport(app=test_app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
+
 
 @pytest.fixture
 def fake_game():
@@ -57,6 +59,7 @@ def fake_game():
         "available_resolutions": ["1920x1080"],
         "supported_settings": ["High", "Ultra"],
     }
+
 
 @pytest.fixture
 def fake_cpus_list():
@@ -102,6 +105,7 @@ def fake_cpus_list():
         }
     ]
 
+
 @pytest.fixture
 def fake_gpus_list():
     """
@@ -139,6 +143,7 @@ def fake_gpus_list():
         }
     ]
 
+
 @pytest.fixture
 def fake_hardware_list(fake_cpus_list, fake_gpus_list):
     """
@@ -146,3 +151,66 @@ def fake_hardware_list(fake_cpus_list, fake_gpus_list):
     Reused in CPU and GPU related tests.
     """
     return fake_cpus_list + fake_gpus_list
+
+
+@pytest.fixture
+def fake_cpus_list_wrong_brand():
+    return [
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884203"),
+            "brand": "brand2",
+            "model": "I11 1234k",
+            "fullname": "Core I11 1234k",
+            "type": "cpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884204"),
+            "brand": "brand2",
+            "model": "I11 5678k",
+            "fullname": "Core I11 5678k",
+            "type": "cpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884205"),
+            "brand": "brand3",
+            "model": "RI 22 987",
+            "fullname": "brand3 RI 22 987",
+            "type": "cpu"
+        }
+    ]
+
+
+@pytest.fixture
+def fake_gpus_list_wrong_brand():
+    return [
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884208"),
+            "brand": "brand5",
+            "model": "RX 5800",
+            "fullname": "RTX 5800",
+            "type": "gpu"
+        },
+        {
+            "_id": ObjectId("6758bbf1849fa5acb6884209"),
+            "brand": "brand5",
+            "model": "RX 5800XT",
+            "fullname": "RTX 5800XT",
+            "type": "gpu"
+        }
+    ]
+
+
+def load_data(type_, fake_data):
+    """
+    Utility to select the correct fake data and patch the MongoDB .find().to_list() call
+    for the given hardware type ('cpu' or 'gpu').
+
+    :param type_: "cpu" or "gpu"
+    :param fake_data: list of mocked CPU/ GPU dictionaries
+    :return: context manager that patches the .find() call
+    """
+    # Use the relevant fake data source
+    # Mock the DB to return GPUs (invalid for this route)
+    mock_cursor = AsyncMock()
+    mock_cursor.to_list = AsyncMock(return_value=fake_data)
+    return patch(f"backend.routes.{type_}s.collection.find", return_value=mock_cursor)
