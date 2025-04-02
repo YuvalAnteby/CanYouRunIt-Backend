@@ -1,0 +1,20 @@
+[
+  {
+    "title": "New Releases",
+    "fetch_url": "/games/category/new",
+    "params": { "limit": 10 },
+    "row_id": "new"
+  },
+  {
+    "title": "Action Games",
+    "fetch_url": "/games/category",
+    "params": { "genre": "action", "limit": 10 },
+    "row_id": "action"
+  },
+  {
+    "title": "RPG Games",
+    "fetch_url": "/games/category",
+    "params": { "genre": "RPG", "limit": 10 },
+    "row_id": "rpg"
+  }
+]
