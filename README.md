@@ -69,6 +69,7 @@ frontend interface.
     - (Optional) FPS target
 - All major queries use indexed MongoDB fields for performance
 - Interactive API docs via Swagger UI at [`http://localhost:8000/docs`](http://localhost:8000/docs)
+- **Test coverage** for core routes using `pytest`, `AsyncMock`, and `httpx.AsyncClient` (valid/invalid inputs)
 
 #### Database & Scripts
 
