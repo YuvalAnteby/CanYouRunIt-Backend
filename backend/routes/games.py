@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from backend.app.database import mongodb
 from backend.models.game import Game
+from backend.utils.validation import validate_games_list
 
 # Connect to MongoDB (this assumes MongoDB is running on localhost)
 client = AsyncIOMotorClient('mongodb://localhost:27017')
@@ -15,8 +16,6 @@ router = APIRouter()
 collection = db.games
 
 
-
-
 @router.get("/games")
 async def get_all_games():
     """
@@ -24,17 +23,11 @@ async def get_all_games():
 
     :return: List of all games as dictionaries.
     """
-    try:
-        games_cursor = collection.find()
-        games = await games_cursor.to_list(length=None)
-        # If games is empty count it as no games found error
-        if not games:
-            raise HTTPException(status_code=404, detail="No games found")
-        return [Game(**game, id=str(game["_id"])) for game in games]
-    except HTTPException:
-        raise HTTPException(status_code=404, detail="No games found")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching all games: {str(e)}")
+    games_cursor = collection.find()
+    games = await games_cursor.to_list(length=None)
+    validate_games_list(games)
+    return [Game(**game, id=str(game["_id"])) for game in games]
+
 
 @router.get("/games/category")
 async def get_games_by_category(genre, limit: Optional[int] = None):
@@ -42,17 +35,12 @@ async def get_games_by_category(genre, limit: Optional[int] = None):
     Retrieve all games with given genre from the DB.
     :return: List of dictionaries with matching genre.
     """
-    try:
-        genre_regex = {"$regex": re.compile(genre, re.IGNORECASE)}
-        games_cursor = collection.find({ "genres": genre_regex })
-        games = await games_cursor.to_list(length=limit)
-        if not games:
-            raise HTTPException(status_code=404, detail="No games found with this genre")
-        return [Game(**game, id=str(game["_id"])) for game in games]
-    except HTTPException:
-        raise HTTPException(status_code=404, detail="No games found with this genre")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching all games: {str(e)}")
+    genre_regex = {"$regex": re.compile(genre, re.IGNORECASE)}
+    games_cursor = collection.find({"genres": genre_regex})
+    games = await games_cursor.to_list(length=limit)
+    validate_games_list(games, limit=limit, genre=genre)
+    return [Game(**game, id=str(game["_id"])) for game in games]
+
 
 # TODO needs more work
 # TODO create tests
