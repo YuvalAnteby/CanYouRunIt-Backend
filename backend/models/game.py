@@ -28,7 +28,7 @@ class Game(BaseModel):
     is_ssd_recommended: bool
     upscale_support: List[str]
     api_support: List[str]
-    creation_date: datetime
+    created_at: datetime
     # Convert ObjectId to string
     id: str
 
