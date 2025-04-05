@@ -3,10 +3,11 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
-
+from pathlib import Path
 from backend.app.database import mongodb
 from backend.models.game import Game
 from backend.utils.validation import validate_games_list
+import json
 
 # Connect to MongoDB (this assumes MongoDB is running on localhost)
 client = AsyncIOMotorClient('mongodb://localhost:27017')
@@ -73,3 +74,19 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
         raise HTTPException(status_code=404, detail="No games found matching the criteria")
 
     return [Game(**game) for game in games]
+
+
+@router.get("/games/row-config")
+async def get_row_config():
+    """
+    Load and return the row config JSON file.
+    """
+    try:
+        config_path = Path(__file__).parent.parent / "config" / "row-config.json"
+        with open(config_path, "r") as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Row config file not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading config: {str(e)}")
