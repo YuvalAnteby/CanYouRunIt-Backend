@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from bson import ObjectId
@@ -27,6 +28,7 @@ class Game(BaseModel):
     is_ssd_recommended: bool
     upscale_support: List[str]
     api_support: List[str]
+    creation_date: datetime
     # Convert ObjectId to string
     id: str
 

@@ -1,12 +1,15 @@
 import asyncio
+from datetime import datetime, timezone
+
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # Connect to MongoDB
 client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client["game_db"]
 collection = db.games
-#TODO add OS_support
-#TODO add added_date
+
+
+# TODO add OS_support
 
 # Add new game
 async def add_one_game(name,
@@ -24,7 +27,8 @@ async def add_one_game(name,
                        land_m,
                        land_l,
                        land_xl,
-                       buy_links):
+                       buy_links,
+                       creation_date):
     """
     Adds a new game to the database.
 
@@ -44,6 +48,7 @@ async def add_one_game(name,
     :param land_l: URL for the landscape image (large size for most pcs)
     :param land_xl: URL for the landscape image (X large size for high-res pcs)
     :param buy_links: array of links of places you can buy the game on
+    :param creation_date: time when added to DB
     """
     game_id = name.lower().replace(' ', '_') + "_" + str(release_date)
     await db.games.insert_one({
@@ -64,6 +69,7 @@ async def add_one_game(name,
         "landscape_l": land_l,
         "landscape_xl": land_xl,
         "buy_links": buy_links,
+        "creation_date": creation_date,
     })
     print(f"Game '{name}' added to the database.")
 
@@ -100,6 +106,8 @@ async def main():
 
     buy_links = []
 
+    creation_date = datetime.now(timezone.utc)
+
     await add_one_game(name,
                        publisher,
                        developer,
@@ -115,7 +123,8 @@ async def main():
                        landscape_m,
                        landscape_l,
                        landscape_xl,
-                       buy_links)
+                       buy_links,
+                       creation_date)
 
 
 # Run the script
