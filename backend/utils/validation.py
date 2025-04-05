@@ -26,7 +26,7 @@ def validate_hardware_list(
     if not hardware:
         raise HTTPException(status_code=404, detail=f"No {type_} found")
     # Ensure only relevant CPUs have been fetched from DB
-    model_pattern = re.compile(model, re.IGNORECASE) if model else None
+    model_pattern = re.compile(re.escape(model), re.IGNORECASE) if model else None
     for item in hardware:
         # Check no GPUs were fetched
         if item.get("type", "").lower() != type_:
