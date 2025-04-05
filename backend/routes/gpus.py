@@ -41,15 +41,10 @@ async def get_all_gpus():
     :return: List of all GPUs as dictionaries.
     """
     gpu_regex = {"$regex": re.compile("gpu", re.IGNORECASE)}
-    try:
-        gpus_cursor = collection.find({"type": gpu_regex})
-        gpus = await gpus_cursor.to_list(length=None)
-        validate_hardware_list(gpus, "gpu")
-        return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
-    except HTTPException as http_exception:
-        raise http_exception
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching gpus by model: {str(e)}")
+    gpus_cursor = collection.find({"type": gpu_regex})
+    gpus = await gpus_cursor.to_list(length=None)
+    validate_hardware_list(gpus, "gpu")
+    return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
 
 
 @router.get("/gpus/brand")
@@ -62,15 +57,10 @@ async def get_gpu_by_brand(brand: str):
     """
     brand_regex = {"$regex": re.compile(brand, re.IGNORECASE)}
     gpu_regex = {"$regex": re.compile("gpu", re.IGNORECASE)}
-    try:
-        gpus_cursor = collection.find({"brand": brand_regex, "type": gpu_regex})
-        gpus = await gpus_cursor.to_list(length=None)
-        validate_hardware_list(gpus, "gpu", brand=brand)
-        return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
-    except HTTPException as http_exception:
-        raise http_exception
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching gpus by model: {str(e)}")
+    gpus_cursor = collection.find({"brand": brand_regex, "type": gpu_regex})
+    gpus = await gpus_cursor.to_list(length=None)
+    validate_hardware_list(gpus, "gpu", brand=brand)
+    return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
 
 
 @router.get("/gpus/model")
@@ -94,12 +84,7 @@ async def get_gpu_by_model(model: str):
             }
         ]
     }
-    try:
-        gpus_cursor = collection.find(search_query)
-        gpus = await gpus_cursor.to_list()
-        validate_hardware_list(gpus, "gpu", model=model)
-        return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
-    except HTTPException as http_exception:
-        raise http_exception
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching gpus by model: {str(e)}")
+    gpus_cursor = collection.find(search_query)
+    gpus = await gpus_cursor.to_list()
+    validate_hardware_list(gpus, "gpu", model=model)
+    return [Gpu(**gpu, id=str(gpu["_id"])) for gpu in gpus]
