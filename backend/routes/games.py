@@ -43,6 +43,18 @@ async def get_games_by_category(genre, limit: Optional[int] = None):
     return [Game(**game, id=str(game["_id"])) for game in games]
 
 
+@router.get("/games/newly_added")
+async def get_newly_added_games(limit: Optional[int] = 10):
+    """
+       Returns the last `limit` games added to the DB, sorted by creation time.
+       Default limit = 10
+       """
+    games_cursor = collection.find().sort("created_at", -1).limit(limit)
+    games = await games_cursor.to_list(length=limit)
+    validate_games_list(games, limit=limit)
+    return [Game(**game, id=str(game["_id"])) for game in games]
+
+
 # TODO needs more work
 # TODO create tests
 # @router.get("/games/search", response_model=List[Game])
