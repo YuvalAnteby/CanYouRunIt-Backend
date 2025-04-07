@@ -24,5 +24,13 @@
       "limit": 10
     },
     "row_id": "rpg"
+  },
+  {
+    "title": "All Games",
+    "fetch_url": "/games/",
+    "params": {
+      "limit": 10
+    },
+    "row_id": "all"
   }
 ]
