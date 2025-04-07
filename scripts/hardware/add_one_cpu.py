@@ -20,13 +20,14 @@ async def add_cpu(brand, model, fullname):
         "brand": brand,
         "model": model,
         "fullname": fullname,
-        "type": f"cpu_{brand.lower()}"
+        "type": f"{brand.lower()}"
     })
     print(f"CPU '{fullname}' added successfully.")
 
 
 async def main():
-    await add_cpu("AMD", "RYZEN 5700X3D", "Ryzen 7 5700X3D")
+    #await add_cpu("AMD", "RYZEN 5700X3D", "Ryzen 7 5700X3D")
+    await add_cpu("Intel", "I9 10910", "Core I9 10910")
 
 
 # Run the script
