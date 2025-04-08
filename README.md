@@ -86,8 +86,9 @@ frontend interface.
 - User-specific features (preferences, history, saved hardware profiles and more)
 - Game price display using third-party APIs (Steam, Epic, etc.)
 - Filtering and search improvements (FPS, genre, release date, etc.)
-- Hardware upgrade suggestions based on requirements
+- Hardware upgrade suggestions based on requirement
 - Public deployment with CI/CD
+- LLM-based fallback: When no matching performance data exists for a given hardware + game + settings query, call a connected LLM (e.g. OpenAI GPT) to generate a short estimated performance summary.
 
 ---
 
