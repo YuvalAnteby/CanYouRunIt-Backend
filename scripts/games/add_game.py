@@ -1,12 +1,15 @@
 import asyncio
+from datetime import datetime, timezone
+
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # Connect to MongoDB
 client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client["game_db"]
 collection = db.games
-#TODO add OS_support
-#TODO add added_date
+
+
+# TODO add OS_support
 
 # Add new game
 async def add_one_game(name,
@@ -24,7 +27,10 @@ async def add_one_game(name,
                        land_m,
                        land_l,
                        land_xl,
-                       buy_links):
+                       buy_links,
+                       creation_date,
+                       supported_settings,
+                       available_resolutions):
     """
     Adds a new game to the database.
 
@@ -44,6 +50,9 @@ async def add_one_game(name,
     :param land_l: URL for the landscape image (large size for most pcs)
     :param land_xl: URL for the landscape image (X large size for high-res pcs)
     :param buy_links: array of links of places you can buy the game on
+    :param creation_date: time when added to DB
+    :param supported_settings: list of names of graphical settings in game
+    :param available_resolutions: array of available resolutions in game
     """
     game_id = name.lower().replace(' ', '_') + "_" + str(release_date)
     await db.games.insert_one({
@@ -54,9 +63,9 @@ async def add_one_game(name,
         "release_date": release_date,
         "genres": genres,
         "desc": desc,
-        "isSsdRequired": is_ssd_required,
-        "upscaleSupport": upscale_support,
-        "apiSupport": api_support,
+        "is_ssd_recommended": is_ssd_required,
+        "upscale_support": upscale_support,
+        "api_support": api_support,
         "trailer_url": trailer_url,
         "portrait_url": port_url,
         "landscape_s": land_s,
@@ -64,41 +73,48 @@ async def add_one_game(name,
         "landscape_l": land_l,
         "landscape_xl": land_xl,
         "buy_links": buy_links,
+        "created_at": creation_date,
+        "supported_settings": supported_settings,
+        "available_resolutions": available_resolutions,
     })
     print(f"Game '{name}' added to the database.")
 
 
 async def main():
-    name = "Kingdom Come Deliverance 1"
+    name = "Cyberpunk 2077"
 
-    publisher = "Deep Silver"
+    publisher = "CD PROJEKT RED"
 
-    developer = "Warhorse Studios"
+    developer = "CD PROJEKT RED"
 
-    release_date = 2018
+    release_date = 2020
 
-    genres = ["Action", "Adventure", "RPG"]
+    genres = ["RPG", "Sci-fi"]
 
-    desc = ("Story-driven open-world RPG that immerses you in an epic adventure in the Holy Roman Empire. Avenge "
-            "your parents' death as you battle invading forces, go on game-changing quests, and make influential "
-            "choices. Explore castles, forests, villages and other realistic settings in medieval Bohemia!")
+    desc = "Step into the shoes of V, a cyberpunk mercenary for hire and do what it takes to make a name for yourself in Night City, a megalopolis obsessed with power, glamour, and body modification. Legends are made here. What will yours be?"
 
-    is_ssd_required = False
+    is_ssd_required = True
 
-    upscale_support = []
+    upscale_support = ["Nvidia DLSS", "AMD FSR", "Intel XeSS"]
 
-    api_support = ["DX11"]
+    api_support = ["DX12"]
 
-    trailer = "https://www.youtube.com/watch?v=_D48PCFshHg"
+    trailer = "https://www.youtube.com/embed/Ugb80d5lxEM?si=b7FQfVM_wqvmY8-E"
 
-    portrait = "https://imgur.com/q1aVXnw"
+    portrait = "https://imgur.com/VDUcpgp"
 
-    landscape_s = "https://imgur.com/DgbCcxa"
-    landscape_m = "https://imgur.com/DgbCcxa"
-    landscape_l = "https://imgur.com/DgbCcxa"
-    landscape_xl = "https://imgur.com/DgbCcxa"
+    landscape_s = ""
+    landscape_m = ""
+    landscape_l = ""
+    landscape_xl = ""
 
     buy_links = []
+
+    creation_date = datetime.now(timezone.utc)
+
+    supported_settings = ["Low", "Medium", "High", "Ultra High"]
+
+    available_resolutions = ["1920x1080", "2560x1440", "3840x2160"]
 
     await add_one_game(name,
                        publisher,
@@ -115,7 +131,10 @@ async def main():
                        landscape_m,
                        landscape_l,
                        landscape_xl,
-                       buy_links)
+                       buy_links,
+                       creation_date,
+                       supported_settings,
+                       available_resolutions)
 
 
 # Run the script

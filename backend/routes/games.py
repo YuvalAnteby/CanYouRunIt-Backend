@@ -1,11 +1,13 @@
-from typing import List, Optional
+import re
+from typing import Optional
 
-from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel
-
+from pathlib import Path
 from backend.app.database import mongodb
+from backend.models.game import Game
+from backend.utils.validation import validate_games_list
+import json
 
 # Connect to MongoDB (this assumes MongoDB is running on localhost)
 client = AsyncIOMotorClient('mongodb://localhost:27017')
@@ -15,38 +17,6 @@ router = APIRouter()
 collection = db.games
 
 
-class Game(BaseModel):
-    """
-    Schema for creating a new game with the relevant attributes
-    """
-    game_id: str
-    name: str
-    publisher: str
-    developer: str
-    release_date: int
-    genres: List[str]
-    desc: str
-    trailer_url: str
-    portrait_url: str
-    buy_links: List[str]
-    landscape_s: str
-    landscape_m: str
-    landscape_l: str
-    landscape_xl: str
-    available_resolutions: List[str]
-    supported_settings: List[str]
-    is_ssd_recommended: bool
-    upscale_support: List[str]
-    api_support: List[str]
-    # Convert ObjectId to string
-    id: str
-
-    class Config:
-        json_encoders = {
-            ObjectId: str  # This will convert ObjectId to a string automatically
-        }
-
-
 @router.get("/games")
 async def get_all_games():
     """
@@ -54,17 +24,35 @@ async def get_all_games():
 
     :return: List of all games as dictionaries.
     """
-    try:
-        games_cursor = collection.find()
-        games = await games_cursor.to_list(length=None)
-        # If games is empty count it as no games found error
-        if not games:
-            raise HTTPException(status_code=404, detail="No games found")
-        return [Game(**game, id=str(game["_id"])) for game in games]
-    except HTTPException:
-        raise HTTPException(status_code=404, detail="No games found")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching all games: {str(e)}")
+    games_cursor = collection.find()
+    games = await games_cursor.to_list(length=None)
+    validate_games_list(games)
+    return [Game(**game, id=str(game["_id"])) for game in games]
+
+
+@router.get("/games/category")
+async def get_games_by_category(genre, limit: Optional[int] = None):
+    """
+    Retrieve all games with given genre from the DB.
+    :return: List of dictionaries with matching genre.
+    """
+    genre_regex = {"$regex": re.compile(genre, re.IGNORECASE)}
+    games_cursor = collection.find({"genres": genre_regex})
+    games = await games_cursor.to_list(length=limit)
+    validate_games_list(games, limit=limit, genre=genre)
+    return [Game(**game, id=str(game["_id"])) for game in games]
+
+
+@router.get("/games/newly_added")
+async def get_newly_added_games(limit: Optional[int] = 10):
+    """
+       Returns the last `limit` games added to the DB, sorted by creation time.
+       Default limit = 10
+       """
+    games_cursor = collection.find().sort("created_at", -1).limit(limit)
+    games = await games_cursor.to_list(length=limit)
+    validate_games_list(games, limit=limit)
+    return [Game(**game, id=str(game["_id"])) for game in games]
 
 
 # TODO needs more work
@@ -98,3 +86,19 @@ async def search_games(name: Optional[str] = None, year: Optional[str] = None, p
         raise HTTPException(status_code=404, detail="No games found matching the criteria")
 
     return [Game(**game) for game in games]
+
+
+@router.get("/games/row-config")
+async def get_row_config():
+    """
+    Load and return the row config JSON file.
+    """
+    try:
+        config_path = Path(__file__).parent.parent / "config" / "row-config.json"
+        with open(config_path, "r") as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Row config file not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading config: {str(e)}")

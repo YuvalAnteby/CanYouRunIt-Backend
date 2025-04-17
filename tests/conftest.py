@@ -58,7 +58,115 @@ def fake_game():
         "buy_links": ["https://store1.com"],
         "available_resolutions": ["1920x1080"],
         "supported_settings": ["High", "Ultra"],
+        "is_ssd_recommended": True,
+        "upscale_support": [],
+        "api_support": ["DX11"],
     }
+
+
+@pytest.fixture
+def fakes_games_list(fake_action_games_list):
+    """
+    Returns a list of dictionaries that looks like real games from the DB.
+    Reused in game and requirements related tests.
+    :return:
+    """
+    return fake_action_games_list + [
+        {
+            "_id": ObjectId("507f1f77bcf86cd799439015"),
+            "game_id": "g5",
+            "name": "Test Game5",
+            "publisher": "Test Publisher3",
+            "developer": "Test Dev4",
+            "release_date": 2000,
+            "genres": ["Simulator"],
+            "desc": "Just a test2.",
+            "trailer_url": "https://example.com/trailer2",
+            "portrait_url": "https://example.com/portrait2",
+            "landscape_s": "...",
+            "landscape_m": "...",
+            "landscape_l": "...",
+            "landscape_xl": "...",
+            "buy_links": ["https://store1.com"],
+            "available_resolutions": ["1920x1080"],
+            "supported_settings": ["High", "Ultra"],
+            "is_ssd_recommended": True,
+            "upscale_support": ["Nvidia DLSS 3.7"],
+            "api_support": ["DX11", "DX12", "Vulkan"],
+        }
+    ]
+
+
+@pytest.fixture
+def fake_action_games_list(fake_game):
+    return [fake_game] + [
+        {
+            "_id": ObjectId("507f1f77bcf86cd799439012"),
+            "game_id": "g2",
+            "name": "Test Game2",
+            "publisher": "Test Publisher1",
+            "developer": "Test Dev1",
+            "release_date": 2023,
+            "genres": ["Action", "RPG"],
+            "desc": "Just a test2.",
+            "trailer_url": "https://example.com/trailer2",
+            "portrait_url": "https://example.com/portrait2",
+            "landscape_s": "...",
+            "landscape_m": "...",
+            "landscape_l": "...",
+            "landscape_xl": "...",
+            "buy_links": ["https://store1.com"],
+            "available_resolutions": ["1920x1080"],
+            "supported_settings": ["High", "Ultra"],
+            "is_ssd_recommended": True,
+            "upscale_support": ["Nvidia DLSS 3.7", "AMD FST 3.1"],
+            "api_support": ["DX11", "DX12"],
+        },
+        {
+            "_id": ObjectId("507f1f77bcf86cd799439013"),
+            "game_id": "g3",
+            "name": "Test Game3",
+            "publisher": "Test Publisher2",
+            "developer": "Test Dev2",
+            "release_date": 2023,
+            "genres": ["Action", "RPG"],
+            "desc": "Just a test2.",
+            "trailer_url": "https://example.com/trailer2",
+            "portrait_url": "https://example.com/portrait2",
+            "landscape_s": "...",
+            "landscape_m": "...",
+            "landscape_l": "...",
+            "landscape_xl": "...",
+            "buy_links": ["https://store1.com"],
+            "available_resolutions": ["1920x1080"],
+            "supported_settings": ["High", "Ultra"],
+            "is_ssd_recommended": False,
+            "upscale_support": ["Nvidia DLSS 3.7", "AMD FST 3.1", "Intel Xess 1.3"],
+            "api_support": ["DX12"],
+        },
+        {
+            "_id": ObjectId("507f1f77bcf86cd799439014"),
+            "game_id": "g4",
+            "name": "Test Game4",
+            "publisher": "Test Publisher3",
+            "developer": "Test Dev2",
+            "release_date": 2021,
+            "genres": ["Action", "RPG"],
+            "desc": "Just a test2.",
+            "trailer_url": "https://example.com/trailer2",
+            "portrait_url": "https://example.com/portrait2",
+            "landscape_s": "...",
+            "landscape_m": "...",
+            "landscape_l": "...",
+            "landscape_xl": "...",
+            "buy_links": ["https://store1.com"],
+            "available_resolutions": ["1920x1080"],
+            "supported_settings": ["High", "Ultra"],
+            "is_ssd_recommended": False,
+            "upscale_support": ["Intel Xess 1.3"],
+            "api_support": ["DX12", "Vulkan"],
+        }
+    ]
 
 
 @pytest.fixture
