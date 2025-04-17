@@ -63,7 +63,7 @@ async def add_one_game(name,
         "release_date": release_date,
         "genres": genres,
         "desc": desc,
-        "is_ssd_required": is_ssd_required,
+        "is_ssd_recommended": is_ssd_required,
         "upscale_support": upscale_support,
         "api_support": api_support,
         "trailer_url": trailer_url,
@@ -81,27 +81,27 @@ async def add_one_game(name,
 
 
 async def main():
-    name = "Red Dead Redemption 2"
+    name = "Cyberpunk 2077"
 
-    publisher = "Rockstar Games"
+    publisher = "CD PROJEKT RED"
 
-    developer = "Rockstar Games"
+    developer = "CD PROJEKT RED"
 
-    release_date = 2019
+    release_date = 2020
 
-    genres = ["Action", "Adventure", "Western"]
+    genres = ["RPG", "Sci-fi"]
 
-    desc = "America, 1899. The end of the Wild West era has begun. After a robbery goes badly wrong in the western town of Blackwater, Arthur Morgan and the Van der Linde gang are forced to flee. With federal agents and the best bounty hunters in the nation massing on their heels, the gang must rob, steal and fight their way across the rugged heartland of America in order to survive. As deepening internal divisions threaten to tear the gang apart, Arthur must make a choice between his own ideals and loyalty to the gang who raised him."
+    desc = "Step into the shoes of V, a cyberpunk mercenary for hire and do what it takes to make a name for yourself in Night City, a megalopolis obsessed with power, glamour, and body modification. Legends are made here. What will yours be?"
 
-    is_ssd_required = False
+    is_ssd_required = True
 
-    upscale_support = ["Nvidia DLSS", "AMD FSR"]
+    upscale_support = ["Nvidia DLSS", "AMD FSR", "Intel XeSS"]
 
-    api_support = ["Vulkan", "DX12"]
+    api_support = ["DX12"]
 
-    trailer = "https://www.youtube.com/embed/HVRzx17WHVk?si=Pm8sns1kqPSPollI"
+    trailer = "https://www.youtube.com/embed/Ugb80d5lxEM?si=b7FQfVM_wqvmY8-E"
 
-    portrait = "https://imgur.com/wNcAUoN"
+    portrait = "https://imgur.com/VDUcpgp"
 
     landscape_s = ""
     landscape_m = ""
@@ -112,9 +112,9 @@ async def main():
 
     creation_date = datetime.now(timezone.utc)
 
-    supported_settings = []
+    supported_settings = ["Low", "Medium", "High", "Ultra High"]
 
-    available_resolutions = []
+    available_resolutions = ["1920x1080", "2560x1440", "3840x2160"]
 
     await add_one_game(name,
                        publisher,
