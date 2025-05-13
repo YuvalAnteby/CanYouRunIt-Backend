@@ -1,0 +1,8 @@
+services:
+  # Pytest unit testing
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile_test
+
+  # TODO add a service for MongoDB and the application itself, need to make sure the app depends on the DB

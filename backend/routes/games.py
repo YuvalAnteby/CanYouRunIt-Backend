@@ -102,3 +102,5 @@ async def get_row_config():
         raise HTTPException(status_code=404, detail="Row config file not found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading config: {str(e)}")
+
+#async def get_games_rawg():
